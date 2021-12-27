@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "parameters.h"
+#include <immintrin.h>
 
 void REF_MMult(int, int, int, double *, int, double *, int, double *, int );
 void MY_MMult(int, int, int, double *, int, double *, int, double *, int );
@@ -44,11 +45,11 @@ int main()
     /* Allocate space for the matrices */
     /* Note: I create an extra column in A to make sure that
        prefetching beyond the matrix does not cause a segfault */
-    a = ( double * ) malloc( lda * (k+1) * sizeof( double ) );  
-    b = ( double * ) malloc( ldb * n * sizeof( double ) );
-    c = ( double * ) malloc( ldc * n * sizeof( double ) );
-    cold = ( double * ) malloc( ldc * n * sizeof( double ) );
-    cref = ( double * ) malloc( ldc * n * sizeof( double ) );
+    a = ( double * ) _mm_malloc( lda * (k+1) * sizeof( double ), 32 );  
+    b = ( double * ) _mm_malloc( ldb * n * sizeof( double ), 32 );
+    c = ( double * ) _mm_malloc( ldc * n * sizeof( double ), 32 );
+    cold = ( double * ) _mm_malloc( ldc * n * sizeof( double ), 32 );
+    cref = ( double * ) _mm_malloc( ldc * n * sizeof( double ), 32 );
 
     /* Generate random matrices A, B, Cold */
     random_matrix( m, k, a, lda );
@@ -83,11 +84,11 @@ int main()
     printf( "%d %le %le \n", p, gflops / dtime_best, diff );
     fflush( stdout );
 
-    free( a );
-    free( b );
-    free( c );
-    free( cold );
-    free( cref );
+    _mm_free( a );
+    _mm_free( b );
+    _mm_free( c );
+    _mm_free( cold );
+    _mm_free( cref );
   }
 
   printf( "];\n" );
